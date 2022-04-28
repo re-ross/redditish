@@ -1,14 +1,16 @@
+import { Post } from "./../entities/Post";
 import { __prod__ } from "./constants";
 import { MikroORM } from "@mikro-orm/core";
+import mikroOrmConfig from "./mikro-orm.config";
 
 const main = async () => {
-  const orm = await MikroORM.init({
-    dbName: process.env.DB_NAME,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    debug: !__prod__,
-    type: "postgresql",
-  });
+  const orm = await MikroORM.init(mikroOrmConfig);
+
+  const post = orm.em.nativeInsert(Post, { title: "my first post" });
+  await orm.em.persistAndFlush(post);
+  await orm.em.nativeInsert(Post, { title: "my second post" });
 };
 
-main();
+main().catch((err) => {
+  console.log(err);
+});
